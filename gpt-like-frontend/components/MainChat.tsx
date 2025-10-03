@@ -32,6 +32,7 @@ export default function MainChat({ chatId }: MainChatProps) {
 
   // 根据chatId加载不同的聊天历史
   useEffect(() => {
+    console.log('MainChat: chatId changed to:', chatId)
     if (chatId) {
       // 这里可以根据chatId加载对应的聊天历史
       // 现在使用模拟数据
@@ -44,8 +45,13 @@ export default function MainChat({ chatId }: MainChatProps) {
         }
       ]
       setMessages(mockMessages)
+      console.log('MainChat: Loaded messages for chatId:', chatId)
     } else {
+      // 新建聊天时清空消息和输入框
       setMessages([])
+      setInput('')
+      setIsLoading(false)
+      console.log('MainChat: Cleared messages for new chat')
     }
   }, [chatId])
 
