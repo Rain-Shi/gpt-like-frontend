@@ -14,10 +14,12 @@ interface Message {
 
 interface MainChatProps {
   chatId?: string
+  initialMessages?: Message[]
   onUpdateTitle?: (chatId: string, title: string) => void
+  onSaveMessage?: (chatId: string, message: Message) => void
 }
 
-export default function MainChat({ chatId, onUpdateTitle }: MainChatProps) {
+export default function MainChat({ chatId, initialMessages, onUpdateTitle, onSaveMessage }: MainChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -34,19 +36,10 @@ export default function MainChat({ chatId, onUpdateTitle }: MainChatProps) {
   // 根据chatId加载不同的聊天历史
   useEffect(() => {
     console.log('MainChat: chatId changed to:', chatId)
-    if (chatId) {
-      // 这里可以根据chatId加载对应的聊天历史
-      // 现在使用模拟数据
-      const mockMessages: Message[] = [
-        {
-          id: '1',
-          content: '你好！我是你的AI助手，有什么可以帮助你的吗？',
-          role: 'assistant',
-          timestamp: new Date()
-        }
-      ]
-      setMessages(mockMessages)
-      console.log('MainChat: Loaded messages for chatId:', chatId)
+    if (chatId && initialMessages) {
+      // 加载聊天历史消息
+      setMessages(initialMessages)
+      console.log('MainChat: Loaded messages for chatId:', chatId, 'messages count:', initialMessages.length)
     } else {
       // 新建聊天时清空消息和输入框
       setMessages([])
@@ -54,7 +47,7 @@ export default function MainChat({ chatId, onUpdateTitle }: MainChatProps) {
       setIsLoading(false)
       console.log('MainChat: Cleared messages for new chat - messages cleared, input cleared, loading stopped')
     }
-  }, [chatId])
+  }, [chatId, initialMessages])
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
@@ -66,16 +59,25 @@ export default function MainChat({ chatId, onUpdateTitle }: MainChatProps) {
       timestamp: new Date()
     }
 
+      // 检查是否是第一条用户消息（在添加消息之前）
+      const isFirstUserMessage = messages.length === 0
+      
       setMessages(prev => [...prev, userMessage])
       setInput('')
       setIsLoading(true)
 
+      // 保存用户消息到聊天历史
+      if (chatId && onSaveMessage) {
+        onSaveMessage(chatId, userMessage)
+      }
+
       // 如果是第一条用户消息，更新聊天标题
-      if (messages.length === 0 && chatId && onUpdateTitle) {
+      if (isFirstUserMessage && chatId && onUpdateTitle) {
         const title = userMessage.content.length > 20 
           ? userMessage.content.substring(0, 20) + '...' 
           : userMessage.content
         onUpdateTitle(chatId, title)
+        console.log('更新聊天标题:', title)
       }
 
     try {
@@ -113,7 +115,12 @@ export default function MainChat({ chatId, onUpdateTitle }: MainChatProps) {
         timestamp: new Date()
       }
 
-      setMessages(prev => [...prev, assistantMessage])
+        setMessages(prev => [...prev, assistantMessage])
+        
+        // 保存AI回复到聊天历史
+        if (chatId && onSaveMessage) {
+          onSaveMessage(chatId, assistantMessage)
+        }
     } catch (error) {
       console.error('聊天请求失败:', error)
       
@@ -142,6 +149,11 @@ export default function MainChat({ chatId, onUpdateTitle }: MainChatProps) {
       }
       
       setMessages(prev => [...prev, errorMessage])
+      
+      // 保存错误消息到聊天历史
+      if (chatId && onSaveMessage) {
+        onSaveMessage(chatId, errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
