@@ -133,6 +133,19 @@ export default function Home() {
     return chat?.messages || []
   }
 
+  // 删除聊天
+  const deleteChat = (chatId: string) => {
+    setChatHistory(prev => prev.filter(chat => chat.id !== chatId))
+    
+    // 如果删除的是当前聊天，切换到新建聊天
+    if (currentChatId === chatId) {
+      setCurrentChatId(undefined)
+      setChatKey(prev => prev + 1)
+    }
+    
+    console.log('删除聊天:', chatId)
+  }
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar
@@ -140,6 +153,7 @@ export default function Home() {
         chatHistory={chatHistory}
         onChatSelect={handleChatSelect}
         onNewChat={handleNewChat}
+        onDeleteChat={deleteChat}
         onAnalyticsClick={handleAnalyticsClick}
       />
       <main className="flex-1 flex flex-col">
