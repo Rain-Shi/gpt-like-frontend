@@ -98,9 +98,19 @@ gpt-like-frontend/
 
 ## ⚙️ 配置说明
 
-### Supabase配置
+### OpenAI API配置
 ```bash
 # 创建 .env.local 文件
+OPENAI_API_KEY=sk-your-openai-api-key-here
+```
+
+**获取API密钥**：
+1. 访问 [OpenAI Platform](https://platform.openai.com/api-keys)
+2. 创建新的API密钥
+3. 将密钥添加到 `.env.local` 文件中
+
+### Supabase配置（可选）
+```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```

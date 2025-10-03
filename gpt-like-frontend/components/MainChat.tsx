@@ -69,17 +69,57 @@ export default function MainChat({ chatId }: MainChatProps) {
     setInput('')
     setIsLoading(true)
 
-    // 模拟AI响应
-    setTimeout(() => {
+    try {
+      // 准备发送给OpenAI的消息格式
+      const messagesForAPI = [
+        ...messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
+        {
+          role: 'user',
+          content: userMessage.content
+        }
+      ]
+
+      // 调用我们的API路由
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: messagesForAPI }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`)
+      }
+
+      const data = await response.json()
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `我收到了你的消息："${userMessage.content}"。这是一个模拟的AI响应。在实际应用中，这里会连接到真实的AI服务。`,
+        content: data.message,
         role: 'assistant',
         timestamp: new Date()
       }
+
       setMessages(prev => [...prev, assistantMessage])
+    } catch (error) {
+      console.error('聊天请求失败:', error)
+      
+      // 如果API调用失败，显示错误消息
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: '抱歉，我暂时无法回复您的消息。请检查网络连接或稍后再试。',
+        role: 'assistant',
+        timestamp: new Date()
+      }
+      
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -100,6 +140,11 @@ export default function MainChat({ chatId }: MainChatProps) {
             <p className="text-muted-foreground mb-6">
               开始新的对话，或者从左侧选择一个历史对话
             </p>
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                💡 提示：请确保已配置OpenAI API密钥以使用AI聊天功能
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
               <div className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer">
                 <h3 className="font-medium mb-2">解释概念</h3>
