@@ -51,7 +51,7 @@ export default function MainChat({ chatId }: MainChatProps) {
       setMessages([])
       setInput('')
       setIsLoading(false)
-      console.log('MainChat: Cleared messages for new chat')
+      console.log('MainChat: Cleared messages for new chat - messages cleared, input cleared, loading stopped')
     }
   }, [chatId])
 
@@ -108,10 +108,26 @@ export default function MainChat({ chatId }: MainChatProps) {
     } catch (error) {
       console.error('聊天请求失败:', error)
       
-      // 如果API调用失败，显示错误消息
+      // 根据错误类型显示不同的错误消息
+      let errorContent = '抱歉，我暂时无法回复您的消息。'
+      
+      if (error instanceof Error) {
+        if (error.message.includes('API请求失败: 500')) {
+          errorContent = '🔑 请检查OpenAI API密钥配置。请确保在.env.local文件中设置了正确的OPENAI_API_KEY。'
+        } else if (error.message.includes('API请求失败: 401')) {
+          errorContent = '🔑 API密钥无效，请检查OpenAI API密钥是否正确。'
+        } else if (error.message.includes('API请求失败: 429')) {
+          errorContent = '⏰ 请求过于频繁，请稍后再试。'
+        } else if (error.message.includes('API请求失败: 402')) {
+          errorContent = '💰 账户余额不足，请检查OpenAI账户余额。'
+        } else {
+          errorContent = `❌ 请求失败: ${error.message}`
+        }
+      }
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: '抱歉，我暂时无法回复您的消息。请检查网络连接或稍后再试。',
+        content: errorContent,
         role: 'assistant',
         timestamp: new Date()
       }
