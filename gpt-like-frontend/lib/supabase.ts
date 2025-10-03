@@ -1,11 +1,11 @@
-import { createClient } from '@supabase/supabase-js'
+﻿import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'your-supabase-url'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-supabase-anon-key'
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'example-anon-key'
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// 示例数据接口
+// Data interfaces
 export interface UserData {
   id: string
   name: string
@@ -33,11 +33,11 @@ export interface AnalyticsData {
   recentMessages: MessageData[]
 }
 
-// 获取分析数据的函数
+// Get analytics data function
 export async function getAnalyticsData(): Promise<AnalyticsData> {
   try {
-    // 这里应该连接到真实的Supabase数据库
-    // 现在返回模拟数据
+    // This should connect to real Supabase database
+    // Now returning mock data
     return {
       totalUsers: 1250,
       totalMessages: 45678,
@@ -45,7 +45,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
       topUsers: [
         {
           id: '1',
-          name: '张三',
+          name: 'Zhang San',
           email: 'zhangsan@example.com',
           created_at: '2024-01-01',
           last_login: '2024-01-15',
@@ -54,7 +54,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
         },
         {
           id: '2',
-          name: '李四',
+          name: 'Li Si',
           email: 'lisi@example.com',
           created_at: '2024-01-02',
           last_login: '2024-01-14',
@@ -63,7 +63,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
         },
         {
           id: '3',
-          name: '王五',
+          name: 'Wang Wu',
           email: 'wangwu@example.com',
           created_at: '2024-01-03',
           last_login: '2024-01-13',
@@ -75,7 +75,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
         {
           id: '1',
           user_id: '1',
-          content: '请解释什么是机器学习',
+          content: 'Please explain what is machine learning',
           role: 'user',
           created_at: '2024-01-15T10:30:00Z',
           tokens_used: 15
@@ -83,7 +83,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
         {
           id: '2',
           user_id: '1',
-          content: '机器学习是人工智能的一个分支...',
+          content: 'Machine learning is a branch of artificial intelligence...',
           role: 'assistant',
           created_at: '2024-01-15T10:30:05Z',
           tokens_used: 120
@@ -91,7 +91,7 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
         {
           id: '3',
           user_id: '2',
-          content: '帮我写一个Python函数',
+          content: 'Help me write a Python function',
           role: 'user',
           created_at: '2024-01-15T09:15:00Z',
           tokens_used: 12

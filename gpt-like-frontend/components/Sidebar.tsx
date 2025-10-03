@@ -51,7 +51,7 @@ export default function Sidebar({
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
-            <h2 className="text-lg font-semibold">ChatGPT</h2>
+            <h2 className="text-lg font-semibold">Chat苑博学</h2>
           )}
           <Button
             variant="ghost"

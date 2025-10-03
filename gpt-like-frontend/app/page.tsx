@@ -19,6 +19,7 @@ export default function Home() {
   const handleNewChat = () => {
     setCurrentChatId(undefined)
     setCurrentView('chat')
+    console.log('新建聊天按钮被点击')
   }
 
   const handleAnalyticsClick = () => {

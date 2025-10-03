@@ -90,7 +90,7 @@ export default function MainChat({ chatId }: MainChatProps) {
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <Bot className="h-12 w-12 text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">欢迎使用 ChatGPT</h2>
+            <h2 className="text-2xl font-semibold mb-2">欢迎使用 Chat苑博学</h2>
             <p className="text-muted-foreground mb-6">
               开始新的对话，或者从左侧选择一个历史对话
             </p>
