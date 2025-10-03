@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Sidebar from '@/components/Sidebar'
 import MainChat from '@/components/MainChat'
 import AnalyticsPage from '@/components/AnalyticsPage'
@@ -27,51 +27,28 @@ export default function Home() {
   const [chatKey, setChatKey] = useState(0) // 添加key来强制重新渲染
   
   // 聊天历史状态管理
-  const [chatHistory, setChatHistory] = useState<ChatHistory[]>([
-    { 
-      id: '1', 
-      title: '如何学习React', 
-      timestamp: new Date('2024-01-15'),
-      messages: [
-        { id: '1-1', content: '你好！我是你的AI助手，有什么可以帮助你的吗？', role: 'assistant', timestamp: new Date('2024-01-15') },
-        { id: '1-2', content: '如何学习React？', role: 'user', timestamp: new Date('2024-01-15') },
-        { id: '1-3', content: '学习React可以从基础开始...', role: 'assistant', timestamp: new Date('2024-01-15') }
-      ]
-    },
-    { 
-      id: '2', 
-      title: 'TypeScript最佳实践', 
-      timestamp: new Date('2024-01-14'),
-      messages: [
-        { id: '2-1', content: '你好！我是你的AI助手，有什么可以帮助你的吗？', role: 'assistant', timestamp: new Date('2024-01-14') },
-        { id: '2-2', content: 'TypeScript有什么最佳实践？', role: 'user', timestamp: new Date('2024-01-14') }
-      ]
-    },
-    { 
-      id: '3', 
-      title: 'Next.js项目结构', 
-      timestamp: new Date('2024-01-13'),
-      messages: [
-        { id: '3-1', content: '你好！我是你的AI助手，有什么可以帮助你的吗？', role: 'assistant', timestamp: new Date('2024-01-13') }
-      ]
-    },
-    { 
-      id: '4', 
-      title: 'Tailwind CSS样式', 
-      timestamp: new Date('2024-01-12'),
-      messages: [
-        { id: '4-1', content: '你好！我是你的AI助手，有什么可以帮助你的吗？', role: 'assistant', timestamp: new Date('2024-01-12') }
-      ]
-    },
-    { 
-      id: '5', 
-      title: '数据库设计', 
-      timestamp: new Date('2024-01-11'),
-      messages: [
-        { id: '5-1', content: '你好！我是你的AI助手，有什么可以帮助你的吗？', role: 'assistant', timestamp: new Date('2024-01-11') }
-      ]
-    },
-  ])
+  const [chatHistory, setChatHistory] = useState<ChatHistory[]>([])
+  
+  // 用户使用统计
+  const [userStats, setUserStats] = useState({
+    totalUsers: 1, // 当前用户
+    totalMessages: 0,
+    averageMessagesPerUser: 0,
+    lastLogin: new Date(),
+    subscriptionType: '免费版'
+  })
+  
+  // 实时更新统计信息
+  useEffect(() => {
+    const allMessages = chatHistory.flatMap(chat => chat.messages)
+    const userMessages = allMessages.filter(msg => msg.role === 'user')
+    
+    setUserStats(prev => ({
+      ...prev,
+      totalMessages: allMessages.length,
+      averageMessagesPerUser: allMessages.length / prev.totalUsers
+    }))
+  }, [chatHistory])
 
   const handleChatSelect = (chatId: string) => {
     setCurrentChatId(chatId)
@@ -146,6 +123,47 @@ export default function Home() {
     console.log('删除聊天:', chatId)
   }
 
+  // 获取真实的分析数据
+  const getRealAnalyticsData = () => {
+    const allMessages = chatHistory.flatMap(chat => chat.messages)
+    const userMessages = allMessages.filter(msg => msg.role === 'user')
+    const assistantMessages = allMessages.filter(msg => msg.role === 'assistant')
+    
+    // 计算Token使用量（简单估算）
+    const totalTokens = allMessages.reduce((sum, msg) => {
+      return sum + Math.ceil(msg.content.length / 4) // 粗略估算：4个字符约等于1个token
+    }, 0)
+    
+    // 获取最近的消息
+    const recentMessages = allMessages
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, 10)
+      .map(msg => ({
+        id: msg.id,
+        user_id: 'current-user',
+        content: msg.content,
+        role: msg.role,
+        created_at: msg.timestamp.toISOString(),
+        tokens_used: Math.ceil(msg.content.length / 4)
+      }))
+    
+    return {
+      totalUsers: userStats.totalUsers,
+      totalMessages: userStats.totalMessages,
+      averageMessagesPerUser: userStats.averageMessagesPerUser,
+      topUsers: [{
+        id: 'current-user',
+        name: '当前用户',
+        email: 'user@example.com',
+        created_at: userStats.lastLogin.toISOString().split('T')[0],
+        last_login: userStats.lastLogin.toISOString().split('T')[0],
+        total_messages: userMessages.length,
+        subscription_type: userStats.subscriptionType
+      }],
+      recentMessages: recentMessages
+    }
+  }
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar
@@ -166,7 +184,10 @@ export default function Home() {
             onSaveMessage={saveMessage}
           />
         ) : (
-          <AnalyticsPage onBack={handleBackToChat} />
+          <AnalyticsPage 
+            onBack={handleBackToChat} 
+            analyticsData={getRealAnalyticsData()}
+          />
         )}
       </main>
     </div>

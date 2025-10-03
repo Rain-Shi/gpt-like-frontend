@@ -5,22 +5,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Users, MessageSquare, TrendingUp, RefreshCw } from 'lucide-react'
-import { getAnalyticsData, type AnalyticsData } from '@/lib/supabase'
+import { type AnalyticsData } from '@/lib/supabase'
 
 interface AnalyticsPageProps {
   onBack: () => void
+  analyticsData: AnalyticsData
 }
 
-export default function AnalyticsPage({ onBack }: AnalyticsPageProps) {
-  const [data, setData] = useState<AnalyticsData | null>(null)
-  const [loading, setLoading] = useState(true)
+export default function AnalyticsPage({ onBack, analyticsData }: AnalyticsPageProps) {
+  const [data, setData] = useState<AnalyticsData | null>(analyticsData)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const fetchData = async () => {
     try {
       setLoading(true)
       setError(null)
-      const analyticsData = await getAnalyticsData()
+      // 使用传入的真实数据
       setData(analyticsData)
     } catch (err) {
       setError('获取数据失败，请稍后重试')
@@ -32,7 +33,7 @@ export default function AnalyticsPage({ onBack }: AnalyticsPageProps) {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [analyticsData])
 
   if (loading) {
     return (
