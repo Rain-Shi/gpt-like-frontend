@@ -18,8 +18,15 @@ interface ChatHistory {
   timestamp: Date
 }
 
+interface ChatHistory {
+  id: string
+  title: string
+  timestamp: Date
+}
+
 interface SidebarProps {
   currentChatId?: string
+  chatHistory: ChatHistory[]
   onChatSelect: (chatId: string) => void
   onNewChat: () => void
   onAnalyticsClick: () => void
@@ -27,20 +34,12 @@ interface SidebarProps {
 
 export default function Sidebar({ 
   currentChatId, 
+  chatHistory,
   onChatSelect, 
   onNewChat, 
   onAnalyticsClick 
 }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  
-  // 模拟聊天历史数据
-  const chatHistory: ChatHistory[] = [
-    { id: '1', title: '如何学习React', timestamp: new Date('2024-01-15') },
-    { id: '2', title: 'TypeScript最佳实践', timestamp: new Date('2024-01-14') },
-    { id: '3', title: 'Next.js项目结构', timestamp: new Date('2024-01-13') },
-    { id: '4', title: 'Tailwind CSS样式', timestamp: new Date('2024-01-12') },
-    { id: '5', title: '数据库设计', timestamp: new Date('2024-01-11') },
-  ]
 
   return (
     <div className={cn(

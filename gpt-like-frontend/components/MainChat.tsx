@@ -14,9 +14,10 @@ interface Message {
 
 interface MainChatProps {
   chatId?: string
+  onUpdateTitle?: (chatId: string, title: string) => void
 }
 
-export default function MainChat({ chatId }: MainChatProps) {
+export default function MainChat({ chatId, onUpdateTitle }: MainChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -65,9 +66,17 @@ export default function MainChat({ chatId }: MainChatProps) {
       timestamp: new Date()
     }
 
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
-    setIsLoading(true)
+      setMessages(prev => [...prev, userMessage])
+      setInput('')
+      setIsLoading(true)
+
+      // 如果是第一条用户消息，更新聊天标题
+      if (messages.length === 0 && chatId && onUpdateTitle) {
+        const title = userMessage.content.length > 20 
+          ? userMessage.content.substring(0, 20) + '...' 
+          : userMessage.content
+        onUpdateTitle(chatId, title)
+      }
 
     try {
       // 准备发送给OpenAI的消息格式
